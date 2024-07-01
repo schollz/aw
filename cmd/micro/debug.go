@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/zyedidia/micro/v2/internal/util"
+	"github.com/schollz/aw/internal/util"
 )
 
 // NullWriter simply sends writes into the void

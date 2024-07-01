@@ -1,7 +1,7 @@
 package buffer
 
 import (
-	"github.com/zyedidia/micro/v2/internal/util"
+	"github.com/schollz/aw/internal/util"
 )
 
 // Loc stores a location

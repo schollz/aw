@@ -18,14 +18,14 @@ import (
 
 	"github.com/go-errors/errors"
 	isatty "github.com/mattn/go-isatty"
+	"github.com/schollz/aw/internal/action"
+	"github.com/schollz/aw/internal/buffer"
+	"github.com/schollz/aw/internal/clipboard"
+	"github.com/schollz/aw/internal/config"
+	"github.com/schollz/aw/internal/screen"
+	"github.com/schollz/aw/internal/shell"
+	"github.com/schollz/aw/internal/util"
 	lua "github.com/yuin/gopher-lua"
-	"github.com/zyedidia/micro/v2/internal/action"
-	"github.com/zyedidia/micro/v2/internal/buffer"
-	"github.com/zyedidia/micro/v2/internal/clipboard"
-	"github.com/zyedidia/micro/v2/internal/config"
-	"github.com/zyedidia/micro/v2/internal/screen"
-	"github.com/zyedidia/micro/v2/internal/shell"
-	"github.com/zyedidia/micro/v2/internal/util"
 	"github.com/zyedidia/tcell/v2"
 )
 

@@ -10,8 +10,8 @@ import (
 
 	"golang.org/x/text/encoding"
 
-	"github.com/zyedidia/micro/v2/internal/config"
-	"github.com/zyedidia/micro/v2/internal/util"
+	"github.com/schollz/aw/internal/config"
+	"github.com/schollz/aw/internal/util"
 )
 
 // The SerializedBuffer holds the types that get serialized when a buffer is saved

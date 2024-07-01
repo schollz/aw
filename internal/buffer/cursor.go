@@ -1,8 +1,8 @@
 package buffer
 
 import (
-	"github.com/zyedidia/micro/v2/internal/clipboard"
-	"github.com/zyedidia/micro/v2/internal/util"
+	"github.com/schollz/aw/internal/clipboard"
+	"github.com/schollz/aw/internal/util"
 )
 
 // InBounds returns whether the given location is a valid character position in the given buffer

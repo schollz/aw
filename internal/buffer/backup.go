@@ -8,9 +8,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/zyedidia/micro/v2/internal/config"
-	"github.com/zyedidia/micro/v2/internal/screen"
-	"github.com/zyedidia/micro/v2/internal/util"
+	"github.com/schollz/aw/internal/config"
+	"github.com/schollz/aw/internal/screen"
+	"github.com/schollz/aw/internal/util"
 	"golang.org/x/text/encoding"
 )
 

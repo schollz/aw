@@ -5,11 +5,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/schollz/aw/internal/config"
+	ulua "github.com/schollz/aw/internal/lua"
+	"github.com/schollz/aw/internal/util"
 	"github.com/stretchr/testify/assert"
 	lua "github.com/yuin/gopher-lua"
-	"github.com/zyedidia/micro/v2/internal/config"
-	ulua "github.com/zyedidia/micro/v2/internal/lua"
-	"github.com/zyedidia/micro/v2/internal/util"
 )
 
 type operation struct {

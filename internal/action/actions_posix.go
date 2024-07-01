@@ -1,3 +1,4 @@
+//go:build linux || darwin || dragonfly || solaris || openbsd || netbsd || freebsd
 // +build linux darwin dragonfly solaris openbsd netbsd freebsd
 
 package action
@@ -5,7 +6,7 @@ package action
 import (
 	"syscall"
 
-	"github.com/zyedidia/micro/v2/internal/screen"
+	"github.com/schollz/aw/internal/screen"
 )
 
 // Suspend sends micro to the background. This is the same as pressing CtrlZ in most unix programs.

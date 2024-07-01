@@ -10,12 +10,12 @@ import (
 	luar "layeh.com/gopher-luar"
 
 	runewidth "github.com/mattn/go-runewidth"
+	"github.com/schollz/aw/internal/buffer"
+	"github.com/schollz/aw/internal/config"
+	ulua "github.com/schollz/aw/internal/lua"
+	"github.com/schollz/aw/internal/screen"
+	"github.com/schollz/aw/internal/util"
 	lua "github.com/yuin/gopher-lua"
-	"github.com/zyedidia/micro/v2/internal/buffer"
-	"github.com/zyedidia/micro/v2/internal/config"
-	ulua "github.com/zyedidia/micro/v2/internal/lua"
-	"github.com/zyedidia/micro/v2/internal/screen"
-	"github.com/zyedidia/micro/v2/internal/util"
 )
 
 // StatusLine represents the information line at the bottom

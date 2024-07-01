@@ -1,4 +1,4 @@
-module github.com/zyedidia/micro/v2
+module github.com/schollz/aw
 
 require (
 	github.com/blang/semver v3.5.1+incompatible

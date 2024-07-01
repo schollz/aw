@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"strconv"
 
-	"github.com/zyedidia/micro/v2/internal/buffer"
-	"github.com/zyedidia/micro/v2/internal/screen"
+	"github.com/schollz/aw/internal/buffer"
+	"github.com/schollz/aw/internal/screen"
 	"github.com/zyedidia/terminal"
 )
 

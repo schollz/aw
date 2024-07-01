@@ -1,11 +1,11 @@
 package display
 
 import (
-	"github.com/zyedidia/micro/v2/internal/buffer"
-	"github.com/zyedidia/micro/v2/internal/config"
-	"github.com/zyedidia/micro/v2/internal/screen"
-	"github.com/zyedidia/micro/v2/internal/util"
-	"github.com/zyedidia/micro/v2/internal/views"
+	"github.com/schollz/aw/internal/buffer"
+	"github.com/schollz/aw/internal/config"
+	"github.com/schollz/aw/internal/screen"
+	"github.com/schollz/aw/internal/util"
+	"github.com/schollz/aw/internal/views"
 )
 
 type UIWindow struct {

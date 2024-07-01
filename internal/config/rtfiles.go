@@ -10,7 +10,7 @@ import (
 	"regexp"
 	"strings"
 
-	rt "github.com/zyedidia/micro/v2/runtime"
+	rt "github.com/schollz/aw/runtime"
 )
 
 const (

@@ -14,10 +14,10 @@ import (
 	"sync"
 
 	"github.com/blang/semver"
+	ulua "github.com/schollz/aw/internal/lua"
+	"github.com/schollz/aw/internal/util"
 	lua "github.com/yuin/gopher-lua"
 	"github.com/zyedidia/json5"
-	ulua "github.com/zyedidia/micro/v2/internal/lua"
-	"github.com/zyedidia/micro/v2/internal/util"
 )
 
 var (

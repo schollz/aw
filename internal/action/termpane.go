@@ -4,11 +4,11 @@ import (
 	"errors"
 	"runtime"
 
-	"github.com/zyedidia/micro/v2/internal/clipboard"
-	"github.com/zyedidia/micro/v2/internal/config"
-	"github.com/zyedidia/micro/v2/internal/display"
-	"github.com/zyedidia/micro/v2/internal/screen"
-	"github.com/zyedidia/micro/v2/internal/shell"
+	"github.com/schollz/aw/internal/clipboard"
+	"github.com/schollz/aw/internal/config"
+	"github.com/schollz/aw/internal/display"
+	"github.com/schollz/aw/internal/screen"
+	"github.com/schollz/aw/internal/shell"
 	"github.com/zyedidia/tcell/v2"
 	"github.com/zyedidia/terminal"
 )

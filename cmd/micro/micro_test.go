@@ -8,11 +8,11 @@ import (
 	"testing"
 
 	"github.com/go-errors/errors"
+	"github.com/schollz/aw/internal/action"
+	"github.com/schollz/aw/internal/buffer"
+	"github.com/schollz/aw/internal/config"
+	"github.com/schollz/aw/internal/screen"
 	"github.com/stretchr/testify/assert"
-	"github.com/zyedidia/micro/v2/internal/action"
-	"github.com/zyedidia/micro/v2/internal/buffer"
-	"github.com/zyedidia/micro/v2/internal/config"
-	"github.com/zyedidia/micro/v2/internal/screen"
 	"github.com/zyedidia/tcell/v2"
 )
 

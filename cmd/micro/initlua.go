@@ -7,14 +7,14 @@ import (
 	lua "github.com/yuin/gopher-lua"
 	luar "layeh.com/gopher-luar"
 
-	"github.com/zyedidia/micro/v2/internal/action"
-	"github.com/zyedidia/micro/v2/internal/buffer"
-	"github.com/zyedidia/micro/v2/internal/config"
-	"github.com/zyedidia/micro/v2/internal/display"
-	ulua "github.com/zyedidia/micro/v2/internal/lua"
-	"github.com/zyedidia/micro/v2/internal/screen"
-	"github.com/zyedidia/micro/v2/internal/shell"
-	"github.com/zyedidia/micro/v2/internal/util"
+	"github.com/schollz/aw/internal/action"
+	"github.com/schollz/aw/internal/buffer"
+	"github.com/schollz/aw/internal/config"
+	"github.com/schollz/aw/internal/display"
+	ulua "github.com/schollz/aw/internal/lua"
+	"github.com/schollz/aw/internal/screen"
+	"github.com/schollz/aw/internal/shell"
+	"github.com/schollz/aw/internal/util"
 )
 
 func init() {

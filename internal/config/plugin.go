@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log"
 
+	ulua "github.com/schollz/aw/internal/lua"
 	lua "github.com/yuin/gopher-lua"
-	ulua "github.com/zyedidia/micro/v2/internal/lua"
 )
 
 // ErrNoSuchFunction is returned when Call is executed on a function that does not exist
@@ -71,7 +71,7 @@ type Plugin struct {
 	Info    *PluginInfo   // json file containing info
 	Srcs    []RuntimeFile // lua files
 	Loaded  bool
-	Default bool          // pre-installed plugin
+	Default bool // pre-installed plugin
 }
 
 // IsLoaded returns if a plugin is enabled
