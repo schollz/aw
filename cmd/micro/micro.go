@@ -1,4 +1,4 @@
-package main
+package micro
 
 import (
 	"flag"
@@ -223,7 +223,7 @@ func LoadInput(args []string) []*buffer.Buffer {
 	return buffers
 }
 
-func main() {
+func Run() {
 	defer func() {
 		if util.Stdout.Len() > 0 {
 			fmt.Fprint(os.Stdout, util.Stdout.String())
