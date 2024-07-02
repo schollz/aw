@@ -15,6 +15,7 @@ import (
 	"github.com/schollz/aw/internal/clipboard"
 	"github.com/schollz/aw/internal/config"
 	"github.com/schollz/aw/internal/display"
+	"github.com/schollz/aw/internal/globals"
 	"github.com/schollz/aw/internal/screen"
 	"github.com/schollz/aw/internal/shell"
 	"github.com/schollz/aw/internal/util"
@@ -931,6 +932,7 @@ func (h *BufPane) saveBufToFile(filename string, action string, callback func())
 					h.Buf.Path = filename
 					h.Buf.SetName(filename)
 					InfoBar.Message("Saved " + filename)
+					globals.ProcessFilename(filename)
 					if callback != nil {
 						callback()
 					}
@@ -957,6 +959,7 @@ func (h *BufPane) saveBufToFile(filename string, action string, callback func())
 		h.Buf.Path = filename
 		h.Buf.SetName(filename)
 		InfoBar.Message("Saved " + filename)
+		globals.ProcessFilename(filename)
 		if callback != nil {
 			callback()
 		}

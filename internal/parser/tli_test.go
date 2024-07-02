@@ -43,6 +43,16 @@ chain chords
 	}
 }
 
+func TestEmpty(t *testing.T) {
+	log.SetLevel("debug")
+	text := ``
+	tli, err := ParseText(text)
+	assert.Nil(t, err)
+	err = tli.Render()
+	assert.Nil(t, err)
+	log.Debugf("tli: %+v", tli)
+}
+
 func TestTLI(t *testing.T) {
 	log.SetLevel("debug")
 	text := `

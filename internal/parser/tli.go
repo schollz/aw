@@ -13,11 +13,13 @@ import (
 	log "github.com/schollz/logger"
 )
 
+var crows crow.Murder
+
 type TLI struct {
-	Chains []Chain `json:"chains"`
-	Loops  []Loop  `json:"loops"`
-	Params Params  `json:"params"`
-	crows  crow.Murder
+	Chains  []Chain `json:"chains"`
+	Loops   []Loop  `json:"loops"`
+	Params  Params  `json:"params"`
+	Playing bool    `json:"playing"`
 }
 
 type Params struct {
@@ -102,14 +104,14 @@ func (c Chain) PlayNote(notes []Note, on bool) (err error) {
 				log.Error(err)
 				return
 			}
-			if c.Parent.crows.IsReady {
+			if crows.IsReady {
 				for i, note := range notes {
 					j := i * 2
 					if on {
-						c.Parent.crows.SetVoltage(output+j, float64(note.Midi)/12.0)
+						crows.SetVoltage(output+j, float64(note.Midi)/12.0)
 					}
-					if c.Parent.crows.UseEnv[output+j] > 0 {
-						c.Parent.crows.On(output+j+1, on)
+					if crows.UseEnv[output+j] > 0 {
+						crows.On(output+j+1, on)
 					}
 				}
 			}
@@ -180,9 +182,10 @@ const (
 	StateSet
 )
 
-func ParseText(text string) (tli TLI, err error) {
+func ParseText(text string) (tli *TLI, err error) {
 	lines := strings.Split(text, "\n")
-	tli = TLI{Chains: []Chain{}, Loops: []Loop{}, Params: Params{Tempo: 120}}
+	tli = new(TLI)
+	tli.Params = Params{Tempo: 120}
 	loop := LoopNew()
 	chain := Chain{}
 	fnFinish := func() {
@@ -403,20 +406,20 @@ func (tliOriginal *TLI) Render() (err error) {
 		for _, fn := range chain.OutFns {
 			switch fn.Name {
 			case "crow":
-				if !tli.crows.IsReady {
-					tli.crows, err = crow.New()
+				if !crows.IsReady {
+					crows, err = crow.New()
 					if err != nil {
 						log.Error(err)
 					}
 				}
-				if tli.crows.IsReady {
+				if crows.IsReady {
 					var val float64
 					var err error
 					var adsr crow.ADSR
 					var output int
 					output, _ = fn.GetIntPlace("output", 0)
 					if output > 0 {
-						tli.crows.UseEnv[output-1], _ = fn.GetInt("env")
+						crows.UseEnv[output-1], _ = fn.GetInt("env")
 
 						adsr = crow.ADSR{Attack: 0.1, Decay: 0.1, Sustain: 5, Release: 1}
 						if val, err = fn.GetFloat("attack"); err == nil {
@@ -431,7 +434,7 @@ func (tliOriginal *TLI) Render() (err error) {
 						if val, err = fn.GetFloat("release"); err == nil {
 							adsr.Release = val
 						}
-						tli.crows.SetADSR(output+1, adsr)
+						crows.SetADSR(output+1, adsr)
 					}
 
 				}
@@ -518,8 +521,6 @@ func (tli *TLI) Run(stop <-chan bool) {
 			select {
 			case <-stop:
 				log.Debug("stopping")
-				// close all the crows
-				tli.crows.Close()
 				return
 			case <-ticker.C:
 				for i, chain := range tli.Chains {
