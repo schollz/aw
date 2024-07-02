@@ -43,7 +43,18 @@ func (f Function) GetFloat(name string) (val float64, err error) {
 	return
 }
 
-func (f Function) GetInt(name string, place int) (val int, err error) {
+func (f Function) GetInt(name string) (val int, err error) {
+	for _, arg := range f.Args {
+		if arg.Name == name {
+			val, err = strconv.Atoi(arg.Value)
+			return
+		}
+	}
+	err = fmt.Errorf("could not find argument %s", name)
+	return
+}
+
+func (f Function) GetIntPlace(name string, place int) (val int, err error) {
 	for _, arg := range f.Args {
 		if arg.Name == name {
 			val, err = strconv.Atoi(arg.Value)

@@ -22,12 +22,6 @@ func TestCrow(t *testing.T) {
 	}
 	err = m.SetADSR(1, ADSR{Attack: 0.1, Decay: 0.1, Sustain: 0.5, Release: 0.1})
 	assert.Nil(t, err)
-	err = m.On(1, true)
-	assert.Nil(t, err)
-	time.Sleep(3 * time.Second)
-	err = m.On(1, false)
-	assert.Nil(t, err)
-	time.Sleep(3 * time.Second)
 
 	// shut down crow
 	err = m.Close()

@@ -23,6 +23,7 @@ type Crow struct {
 type Murder struct {
 	IsReady bool
 	Crow    []Crow
+	UseEnv  [16]int
 }
 
 func New() (m Murder, err error) {
@@ -40,12 +41,18 @@ func New() (m Murder, err error) {
 		BaudRate: 115200,
 	}
 	for _, port := range ports {
+		if strings.Contains(port, "ttyS0") {
+			continue
+		}
+		log.Tracef("connecting to %+v", port)
 		crow.conn, err = serial.Open(port, mode)
 		if err != nil {
+			log.Tracef("could not open: %+v", err)
 			continue
 		}
 		_, err = crow.conn.Write([]byte("^^version"))
 		if err != nil {
+			crow.conn.Close()
 			log.Error(err)
 			continue
 		}
@@ -54,6 +61,7 @@ func New() (m Murder, err error) {
 		buf := make([]byte, 100)
 		n, err := crow.conn.Read(buf)
 		if err != nil {
+			crow.conn.Close()
 			log.Error(err)
 			continue
 		}
@@ -63,11 +71,13 @@ func New() (m Murder, err error) {
 			// setup default
 			_, err = crow.conn.Write([]byte("^^First"))
 			if err != nil {
+				crow.conn.Close()
 				log.Error(err)
 				continue
 			}
 			n, err = crow.conn.Read(buf)
 			if err != nil {
+				crow.conn.Close()
 				log.Error(err)
 				continue
 			}
@@ -75,6 +85,10 @@ func New() (m Murder, err error) {
 			log.Debugf("crow connected on %s", crow.PortName)
 			m.Crow = append(m.Crow, crow)
 			crow = Crow{}
+		} else {
+			log.Tracef("closing %s", port)
+			crow.conn.Close()
+			log.Tracef("not a crow: %s", port)
 		}
 
 	}
@@ -85,7 +99,7 @@ func New() (m Murder, err error) {
 	return
 }
 
-func (m Murder) Close() (err error) {
+func (m *Murder) Close() (err error) {
 	for _, crow := range m.Crow {
 		errClose := crow.conn.Close()
 		if errClose != nil {
@@ -95,6 +109,7 @@ func (m Murder) Close() (err error) {
 			log.Debugf("closed crow at %s", crow.PortName)
 		}
 	}
+	m = nil
 	return
 }
 

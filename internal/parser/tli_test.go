@@ -46,22 +46,57 @@ chain chords
 func TestTLI(t *testing.T) {
 	log.SetLevel("debug")
 	text := `
-loop one
-Cm;1(ru4d4u2,h50,t120)
-F;1(ru4d4u2,h50,t120)
 
-loop two 
-c1(h50) d e♭ f
-f - a g
+loop test
+a(h50,t30,b8) b c d
+a(b4) b c d
 
-loop tuning 
-c2
+chain test
+out crow(output=1)
 
-chain one
-out crow(output=1,attack=0.1,decay=0.1,sustain=5,release=0.1)
+// loop one
+// C;1(ru4d4u2,h50,t60)
+// Am;1(ru4d4u2)
+// Em;1(ru4d4u2)
+// G/B;1(ru4d4u2)
 
-chain two
-out crow(output=3,attack=0.1,decay=0.1,sustain=5,release=0.1)
+// loop one2
+// F;1(ru4d4u2,h50)
+// F;1(ru4d4u2)
+// Am;1(ru4d4u2)
+// Dm;1(ru4d4u2)
+
+// loop two 
+// c4(h50,t60)
+// g4 a4 - -
+// c5 e5 c5 g5
+// -
+
+// loop three
+// e3(t60) - - d3
+// e3 - - d3
+// e3 - - d3
+// e3 - - d3
+
+
+// loop three2
+// f3(t60) a4 - -
+// a2 g2 - -
+// f3 - - -
+// e3 - - -
+
+
+// loop tuning 
+// c2
+
+// chain one * 2 one2 *2
+// out crow(output=1,env=1,attack=0.1,decay=0.1,sustain=5,release=0.1)
+
+// chain two
+// out crow(output=3)
+
+// chain three*2 three2*2
+// out crow(output=4)
 
 	`
 
@@ -73,7 +108,7 @@ out crow(output=3,attack=0.1,decay=0.1,sustain=5,release=0.1)
 
 	done := make(chan bool)
 	tli.Run(done)
-	time.Sleep(82 * time.Second)
+	time.Sleep(180 * time.Second)
 	done <- true
 	time.Sleep(1 * time.Second)
 }

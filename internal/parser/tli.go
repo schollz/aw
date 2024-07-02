@@ -97,7 +97,7 @@ func (c Chain) PlayNote(notes []Note, on bool) (err error) {
 		case "crow":
 			// crow out
 			var output int
-			output, err = out.GetInt("output", 0)
+			output, err = out.GetIntPlace("output", 0)
 			if err != nil {
 				log.Error(err)
 				return
@@ -108,7 +108,9 @@ func (c Chain) PlayNote(notes []Note, on bool) (err error) {
 					if on {
 						c.Parent.crows.SetVoltage(output+j, float64(note.Midi)/12.0)
 					}
-					c.Parent.crows.On(output+j+1, on)
+					if c.Parent.crows.UseEnv[output+j] > 0 {
+						c.Parent.crows.On(output+j+1, on)
+					}
 				}
 			}
 		case "sc":
@@ -302,6 +304,12 @@ func (p *Loop) AddLine(line string) (err error) {
 				if errParse == nil {
 					step.Params.Set(TempoSet, tempo)
 				}
+			} else if strings.HasPrefix(decorator, "b") {
+				beats, errParse := strconv.Atoi(decorator[1:])
+				if errParse == nil {
+					step.BeatsPerLine = beats
+					p.lastBeatsPerLine = beats
+				}
 			} else if strings.HasPrefix(decorator, "v") {
 				velocity, errParse := strconv.ParseFloat(decorator[1:], 64)
 				if errParse == nil {
@@ -406,9 +414,11 @@ func (tliOriginal *TLI) Render() (err error) {
 					var err error
 					var adsr crow.ADSR
 					var output int
-					output, err = fn.GetInt("output", 0)
-					adsr = crow.ADSR{Attack: 0.1, Decay: 0.1, Sustain: 5, Release: 1}
-					if err == nil {
+					output, _ = fn.GetIntPlace("output", 0)
+					if output > 0 {
+						tli.crows.UseEnv[output-1], _ = fn.GetInt("env")
+
+						adsr = crow.ADSR{Attack: 0.1, Decay: 0.1, Sustain: 5, Release: 1}
 						if val, err = fn.GetFloat("attack"); err == nil {
 							adsr.Attack = val
 						}
@@ -423,6 +433,7 @@ func (tliOriginal *TLI) Render() (err error) {
 						}
 						tli.crows.SetADSR(output+1, adsr)
 					}
+
 				}
 			}
 		}
@@ -507,6 +518,8 @@ func (tli *TLI) Run(stop <-chan bool) {
 			select {
 			case <-stop:
 				log.Debug("stopping")
+				// close all the crows
+				tli.crows.Close()
 				return
 			case <-ticker.C:
 				for i, chain := range tli.Chains {
