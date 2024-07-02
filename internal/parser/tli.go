@@ -548,6 +548,10 @@ func (tli *TLI) run() {
 				}
 				mutex.Lock()
 				for i, chain := range tli.Chains {
+					// skip if no steps
+					if len(chain.Steps) == 0 {
+						continue
+					}
 					timePosition := hrtime.Since(startTime).Microseconds()
 					for {
 						if timePosition < chain.MicrosecondsTotal {
