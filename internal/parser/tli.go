@@ -5,6 +5,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -14,6 +15,7 @@ import (
 )
 
 var crows crow.Murder
+var mutex sync.Mutex
 
 type TLI struct {
 	Chains  []Chain `json:"chains"`
@@ -188,6 +190,8 @@ func New() *TLI {
 }
 
 func (tli *TLI) Update(text string) (err error) {
+	mutex.Lock()
+	defer mutex.Unlock()
 	tliTest := New()
 	err = tliTest.ParseText(text)
 	if err != nil {
@@ -365,6 +369,10 @@ func (tli *TLI) Render() (err error) {
 				}
 			}
 		}
+		// check if there are any steps
+		if len(tli.Chains[i].Steps) == 0 {
+			continue
+		}
 		// set the tempo on each step
 		lastTempo := tli.Params.Tempo
 		for j := 0; j < len(tli.Chains[i].Steps); j++ {
@@ -524,6 +532,13 @@ func (tli *TLI) run() {
 		tli.Chains[i].TimePosition = -1
 	}
 	go func() {
+		// catch panic
+		defer func() {
+			if r := recover(); r != nil {
+				log.Error(r)
+			}
+		}()
+
 		for {
 			select {
 			case <-ticker.C:
@@ -531,6 +546,7 @@ func (tli *TLI) run() {
 					log.Debug("not playing")
 					return
 				}
+				mutex.Lock()
 				for i, chain := range tli.Chains {
 					timePosition := hrtime.Since(startTime).Microseconds()
 					for {
@@ -541,6 +557,7 @@ func (tli *TLI) run() {
 					}
 					for stepi, step := range chain.Steps {
 						if !tli.Playing {
+							mutex.Unlock()
 							return
 						}
 						if (timePosition > step.TimeStartMicroseconds && tli.Chains[i].TimePosition <= step.TimeStartMicroseconds) ||
@@ -555,13 +572,17 @@ func (tli *TLI) run() {
 									}
 									time.Sleep(1 * time.Millisecond)
 								}
-								tli.Chains[i].PlayNote(s.Notes, false)
+								mutex.Lock()
+								if i < len(tli.Chains) {
+									tli.Chains[i].PlayNote(s.Notes, false)
+								}
+								mutex.Unlock()
 							}(step)
 						}
 					}
 					tli.Chains[i].TimePosition = timePosition
 				}
-
+				mutex.Unlock()
 			}
 		}
 	}()
