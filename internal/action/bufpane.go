@@ -9,9 +9,11 @@ import (
 	"github.com/schollz/aw/internal/buffer"
 	"github.com/schollz/aw/internal/config"
 	"github.com/schollz/aw/internal/display"
+	"github.com/schollz/aw/internal/globals"
 	ulua "github.com/schollz/aw/internal/lua"
 	"github.com/schollz/aw/internal/screen"
 	"github.com/schollz/aw/internal/util"
+	log "github.com/schollz/logger"
 	lua "github.com/yuin/gopher-lua"
 	"github.com/zyedidia/tcell/v2"
 )
@@ -470,10 +472,15 @@ func (h *BufPane) HandleEvent(event tcell.Event) {
 		h.Relocate()
 	case *tcell.EventKey:
 		ke := keyEvent(e)
-
-		done := h.DoKeyEvent(ke)
-		if !done && e.Key() == tcell.KeyRune {
-			h.DoRuneInsert(e.Rune())
+		log.Tracef("tcell.EventKey: %v %v %v", ke.mod, ke.code, ke.r)
+		if ke.mod == 2 && ke.code == 0 && ke.r == 0 {
+			// Ctrl+Space
+			globals.TLI.Toggle()
+		} else {
+			done := h.DoKeyEvent(ke)
+			if !done && e.Key() == tcell.KeyRune {
+				h.DoRuneInsert(e.Rune())
+			}
 		}
 	case *tcell.EventMouse:
 		if e.Buttons() != tcell.ButtonNone {

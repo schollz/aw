@@ -378,6 +378,16 @@ func Run() {
 		}
 	}()
 
+	// request redraw
+	go func() {
+		for {
+			timerChan <- func() {
+				screen.Redraw()
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
+
 	// clear the drawchan so we don't redraw excessively
 	// if someone requested a redraw before we started displaying
 	for len(screen.DrawChan()) > 0 {

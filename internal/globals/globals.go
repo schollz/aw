@@ -16,15 +16,6 @@ func ProcessFilename(filename string) (err error) {
 		return
 	}
 	text := string(b)
-	TLI, err = parser.ParseText(text)
-	if err != nil {
-		log.Error(err)
-		return
-	}
-	err = TLI.Render()
-	if err != nil {
-		log.Error(err)
-		return
-	}
+	err = TLI.Update(text)
 	return
 }

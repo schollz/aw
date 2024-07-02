@@ -12,6 +12,7 @@ import (
 	runewidth "github.com/mattn/go-runewidth"
 	"github.com/schollz/aw/internal/buffer"
 	"github.com/schollz/aw/internal/config"
+	"github.com/schollz/aw/internal/globals"
 	ulua "github.com/schollz/aw/internal/lua"
 	"github.com/schollz/aw/internal/screen"
 	"github.com/schollz/aw/internal/util"
@@ -164,6 +165,13 @@ func (s *StatusLine) Display() {
 	}
 
 	leftText := []byte(s.win.Buf.Settings["statusformatl"].(string))
+	left := ""
+	if globals.TLI.Playing {
+		left = "▶"
+	} else {
+		left = "⏸"
+	}
+	leftText = []byte(left + " $(filename) ($(line),$(col))")
 	leftText = formatParser.ReplaceAllFunc(leftText, formatter)
 	rightText := []byte(s.win.Buf.Settings["statusformatr"].(string))
 	rightText = formatParser.ReplaceAllFunc(rightText, formatter)

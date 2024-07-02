@@ -76,7 +76,6 @@ type Chain struct {
 	BeatsTotal        float64    `json:"beats_total"`
 	MicrosecondsTotal int64      `json:"microseconds_total"`
 	TimePosition      int64      `json:"time_position,omitempty"`
-	Parent            *TLI
 }
 
 func (c Chain) String() string {
@@ -182,12 +181,36 @@ const (
 	StateSet
 )
 
-func ParseText(text string) (tli *TLI, err error) {
-	lines := strings.Split(text, "\n")
-	tli = new(TLI)
+func New() *TLI {
+	tli := new(TLI)
 	tli.Params = Params{Tempo: 120}
+	return tli
+}
+
+func (tli *TLI) Update(text string) (err error) {
+	tliTest := New()
+	err = tliTest.ParseText(text)
+	if err != nil {
+		log.Error(err)
+		return
+
+	}
+	err = tliTest.Render()
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	tli.ParseText(text)
+	tli.Render()
+	return
+}
+
+func (tli *TLI) ParseText(text string) (err error) {
+	lines := strings.Split(text, "\n")
 	loop := LoopNew()
 	chain := Chain{}
+	tli.Loops = []Loop{}
+	tli.Chains = []Chain{}
 	fnFinish := func() {
 		if len(loop.Steps) > 0 {
 			tli.Loops = append(tli.Loops, loop)
@@ -332,46 +355,7 @@ func (p *Loop) AddLine(line string) (err error) {
 	return
 }
 
-func Copy(other TLI) (tli *TLI) {
-	tli = new(TLI)
-	tli.Chains = make([]Chain, len(other.Chains))
-	for i := 0; i < len(other.Chains); i++ {
-		tli.Chains[i] = other.Chains[i]
-		tli.Chains[i].Steps = make([]Step, len(other.Chains[i].Steps))
-		for j := 0; j < len(other.Chains[i].Steps); j++ {
-			tli.Chains[i].Steps[j] = other.Chains[i].Steps[j]
-			tli.Chains[i].Steps[j].Notes = make([]Note, len(other.Chains[i].Steps[j].Notes))
-			for k := 0; k < len(other.Chains[i].Steps[j].Notes); k++ {
-				tli.Chains[i].Steps[j].Notes[k] = other.Chains[i].Steps[j].Notes[k]
-			}
-		}
-	}
-	tli.Loops = make([]Loop, len(other.Loops))
-	for i := 0; i < len(other.Loops); i++ {
-		tli.Loops[i] = other.Loops[i]
-		tli.Loops[i].Steps = make([]Step, len(other.Loops[i].Steps))
-		for j := 0; j < len(other.Loops[i].Steps); j++ {
-			tli.Loops[i].Steps[j] = other.Loops[i].Steps[j]
-			tli.Loops[i].Steps[j].Notes = make([]Note, len(other.Loops[i].Steps[j].Notes))
-			for k := 0; k < len(other.Loops[i].Steps[j].Notes); k++ {
-				tli.Loops[i].Steps[j].Notes[k] = other.Loops[i].Steps[j].Notes[k]
-			}
-		}
-	}
-	tli.Params = other.Params
-	return
-}
-
-func (tliOriginal *TLI) Render() (err error) {
-	// store a copy of the current tli
-	tli := Copy(*tliOriginal)
-	defer func() {
-		// if there is no error, replace the current TLI with the new one
-		if err == nil {
-			log.Debugf("replacing tli with new tli")
-			*tliOriginal = *tli
-		}
-	}()
+func (tli *TLI) Render() (err error) {
 
 	for i := 0; i < len(tli.Chains); i++ {
 		for _, loopName := range tli.Chains[i].NameLoop {
@@ -399,7 +383,6 @@ func (tliOriginal *TLI) Render() (err error) {
 			tli.Chains[i].Steps[j].Params.Gate = lastGate
 		}
 		tli.Chains[i].Render()
-		tli.Chains[i].Parent = tli
 	}
 	// setup outputs
 	for _, chain := range tli.Chains {
@@ -509,8 +492,32 @@ func (c *Chain) Render() {
 	c.MicrosecondsTotal = microSecondsTotal
 }
 
+func (tli *TLI) Toggle() {
+	if tli.Playing {
+		tli.Stop()
+	} else {
+		tli.Play()
+	}
+}
+func (tli *TLI) Stop() {
+	if tli.Playing {
+		log.Debugf("stopping")
+		tli.Playing = false
+	}
+}
+
+func (tli *TLI) Play() {
+	if len(tli.Chains) > 0 {
+		go tli.run()
+	}
+}
+
 // create a Run that takes an incoming bool channel to stop
-func (tli *TLI) Run(stop <-chan bool) {
+func (tli *TLI) run() {
+	if tli.Playing {
+		return
+	}
+	tli.Playing = true
 	ticker := time.NewTicker(10 * time.Microsecond)
 	startTime := hrtime.Now()
 	for i := range tli.Chains {
@@ -519,10 +526,11 @@ func (tli *TLI) Run(stop <-chan bool) {
 	go func() {
 		for {
 			select {
-			case <-stop:
-				log.Debug("stopping")
-				return
 			case <-ticker.C:
+				if !tli.Playing {
+					log.Debug("not playing")
+					return
+				}
 				for i, chain := range tli.Chains {
 					timePosition := hrtime.Since(startTime).Microseconds()
 					for {
@@ -532,6 +540,9 @@ func (tli *TLI) Run(stop <-chan bool) {
 						timePosition -= chain.MicrosecondsTotal
 					}
 					for stepi, step := range chain.Steps {
+						if !tli.Playing {
+							return
+						}
 						if (timePosition > step.TimeStartMicroseconds && tli.Chains[i].TimePosition <= step.TimeStartMicroseconds) ||
 							(timePosition < tli.Chains[i].TimePosition && stepi == 0) {
 							tli.Chains[i].PlayNote(step.Notes, true)

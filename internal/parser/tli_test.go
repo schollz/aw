@@ -30,7 +30,8 @@ out crow(output=1,attack=0.1,decay=0.1,sustain=5,release=2)
 chain chords
 
 	`
-	tli, _ := ParseText(text)
+	tli := New()
+	tli.ParseText(text)
 	log.SetLevel("info")
 	maxDuration := 5 * time.Second
 	startTime := time.Now()
@@ -46,7 +47,8 @@ chain chords
 func TestEmpty(t *testing.T) {
 	log.SetLevel("debug")
 	text := ``
-	tli, err := ParseText(text)
+	tli := New()
+	err := tli.ParseText(text)
 	assert.Nil(t, err)
 	err = tli.Render()
 	assert.Nil(t, err)
@@ -58,8 +60,7 @@ func TestTLI(t *testing.T) {
 	text := `
 
 loop test
-a(h50,t30,b8) b c d
-a(b4) b c d
+a(h50,t160,b8) b c d
 
 chain test
 out crow(output=1)
@@ -110,15 +111,23 @@ out crow(output=1)
 
 	`
 
-	tli, err := ParseText(text)
+	tli := New()
+	err := tli.ParseText(text)
 	assert.Nil(t, err)
 	err = tli.Render()
 	assert.Nil(t, err)
-	log.Debugf("tli: %+v", tli)
 
-	done := make(chan bool)
-	tli.Run(done)
-	time.Sleep(180 * time.Second)
-	done <- true
+	tli.Play()
+	time.Sleep(3 * time.Second)
+	err = tli.Update(`
+loop test
+f(t180) e d c
+
+chain test
+out crow(output=1)`)
+	assert.Nil(t, err)
+	time.Sleep(3 * time.Second)
+	tli.Stop()
+	log.Debug(tli.Playing)
 	time.Sleep(1 * time.Second)
 }

@@ -18,7 +18,8 @@ func main() {
 	}
 	log.SetOutput(f)
 
-	globals.TLI, err = parser.ParseText(``)
+	globals.TLI = parser.New()
+	err = globals.TLI.ParseText(``)
 	if err != nil {
 		panic(err)
 	}
