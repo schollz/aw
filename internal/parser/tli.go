@@ -18,10 +18,11 @@ var crows crow.Murder
 var mutex sync.Mutex
 
 type TLI struct {
-	Chains  []Chain `json:"chains"`
-	Loops   []Loop  `json:"loops"`
-	Params  Params  `json:"params"`
-	Playing bool    `json:"playing"`
+	Chains   []Chain `json:"chains"`
+	Loops    []Loop  `json:"loops"`
+	Params   Params  `json:"params"`
+	Playing  bool    `json:"playing"`
+	Updating bool    `json:"updating"`
 }
 
 type Params struct {
@@ -109,7 +110,7 @@ func (c Chain) PlayNote(notes []Note, on bool) (err error) {
 				for i, note := range notes {
 					j := i * 2
 					if on {
-						crows.SetVoltage(output+j, float64(note.Midi)/12.0)
+						crows.SetVoltage(output+j, float64(note.Midi-12.0)/12.0)
 					}
 					if crows.UseEnv[output+j] > 0 {
 						crows.On(output+j+1, on)
@@ -204,8 +205,10 @@ func (tli *TLI) Update(text string) (err error) {
 		log.Error(err)
 		return
 	}
+	tli.Updating = true
 	tli.ParseText(text)
 	tli.Render()
+	tli.Updating = false
 	return
 }
 
@@ -549,7 +552,7 @@ func (tli *TLI) run() {
 				mutex.Lock()
 				for i, chain := range tli.Chains {
 					// skip if no steps
-					if len(chain.Steps) == 0 {
+					if len(chain.Steps) == 0 || tli.Updating {
 						continue
 					}
 					timePosition := hrtime.Since(startTime).Microseconds()

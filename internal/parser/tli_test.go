@@ -55,6 +55,27 @@ func TestEmpty(t *testing.T) {
 	log.Debugf("tli: %+v", tli)
 }
 
+func TestClock(t *testing.T) {
+
+	log.SetLevel("debug")
+	text := `
+loop clock
+c8(t180) c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0
+
+chain clock
+out crow(4)
+`
+	tli := New()
+	err := tli.ParseText(text)
+	assert.Nil(t, err)
+	err = tli.Render()
+	assert.Nil(t, err)
+
+	tli.Play()
+	time.Sleep(30 * time.Second)
+	tli.Stop()
+
+}
 func TestTLI(t *testing.T) {
 	log.SetLevel("debug")
 	text := `
