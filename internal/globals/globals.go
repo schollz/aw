@@ -17,5 +17,8 @@ func ProcessFilename(filename string) (err error) {
 	}
 	text := string(b)
 	err = TLI.Update(text)
+	if !TLI.Playing {
+		TLI.Play()
+	}
 	return
 }
