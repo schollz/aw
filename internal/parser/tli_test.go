@@ -76,6 +76,39 @@ out crow(4)
 	tli.Stop()
 
 }
+
+func TestArpy(t *testing.T) {
+	log.SetLevel("debug")
+	text := `
+loop test
+abea(h50,ru4d2,b32)
+
+loop chords
+Am;2(ru4d4u4d4)
+Am;2(ru4d4u4d4)
+Em;2(ru4d4u4d4)
+Em;2(ru4d4u4d4)
+Am;2(ru4d4u4d4)
+Am;2(ru4d4u4d4)
+F/A;2(ru4d4u4d4)
+F/A;2(ru4d4u4d4)
+
+chain test
+out crow(1)
+
+chain chords
+out crow(2)
+`
+	tli := New()
+	err := tli.ParseText(text)
+	assert.Nil(t, err)
+	err = tli.Render()
+	log.Debugf("tli: %+v", tli)
+	assert.Nil(t, err)
+	tli.Play()
+	time.Sleep(60 * time.Second)
+	tli.Stop()
+}
 func TestTLI(t *testing.T) {
 	log.SetLevel("debug")
 	text := `

@@ -26,27 +26,31 @@ type TLI struct {
 }
 
 type Params struct {
-	IsSet    int     `json:"isset"`
-	Tempo    int     `json:"tempo"`
-	Gate     float64 `json:"gate"`
-	Velocity float64 `json:"velocity"`
+	IsSet    int `json:"isset"`
+	Tempo    int `json:"tempo"`
+	Gate     int `json:"gate"`
+	Velocity int `json:"velocity"`
+	Index    int `json:"index"`
 }
 
 const (
 	TempoSet = 1 << iota
 	GateSet
 	VelocitySet
+	IndexSet
 )
 
-func (p *Params) Set(param int, val interface{}) {
+func (p *Params) Set(param int, val int) {
 	p.IsSet |= param
 	switch param {
 	case TempoSet:
-		p.Tempo = val.(int)
+		p.Tempo = val
 	case GateSet:
-		p.Gate = val.(float64)
+		p.Gate = val
 	case VelocitySet:
-		p.Velocity = val.(float64)
+		p.Velocity = val
+	case IndexSet:
+		p.Index = val
 	}
 }
 
@@ -344,14 +348,14 @@ func (p *Loop) AddLine(line string) (err error) {
 					p.lastBeatsPerLine = beats
 				}
 			} else if strings.HasPrefix(decorator, "v") {
-				velocity, errParse := strconv.ParseFloat(decorator[1:], 64)
+				velocity, errParse := strconv.Atoi(decorator[1:])
 				if errParse == nil {
 					step.Params.Set(VelocitySet, velocity)
 				}
 			} else if strings.HasPrefix(decorator, "h") {
-				gate, errParse := strconv.ParseFloat(decorator[1:], 64)
+				gate, errParse := strconv.Atoi(decorator[1:])
 				if errParse == nil {
-					step.Params.Set(GateSet, gate/100.0)
+					step.Params.Set(GateSet, gate)
 				}
 			}
 		}
@@ -386,7 +390,7 @@ func (tli *TLI) Render() (err error) {
 			tli.Chains[i].Steps[j].Params.Tempo = lastTempo
 		}
 		// set the gate on each step
-		lastGate := 0.95
+		lastGate := 95
 		for j := 0; j < len(tli.Chains[i].Steps); j++ {
 			if tli.Chains[i].Steps[j].Params.CheckSet(GateSet) {
 				lastGate = tli.Chains[i].Steps[j].Params.Gate
@@ -571,7 +575,7 @@ func (tli *TLI) run() {
 							(timePosition < tli.Chains[i].TimePosition && stepi == 0) {
 							tli.Chains[i].PlayNote(step.Notes, true)
 							go func(s Step) {
-								sleepMS := int64(math.Round(float64(s.TimeDurationMicroseconds) * s.Params.Gate))
+								sleepMS := int64(math.Round(float64(s.TimeDurationMicroseconds) * float64(s.Params.Gate) / 100.0))
 								sleepStart := hrtime.Now()
 								for {
 									if hrtime.Since(sleepStart).Microseconds() > sleepMS {
