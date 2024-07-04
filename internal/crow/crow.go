@@ -36,6 +36,7 @@ func New() (m Murder, err error) {
 		log.Error(err)
 		return
 	}
+	log.Tracef("ports: %+v", ports)
 	crow := Crow{}
 	mode := &serial.Mode{
 		BaudRate: 115200,
@@ -50,23 +51,21 @@ func New() (m Murder, err error) {
 			log.Tracef("could not open: %+v", err)
 			continue
 		}
+		crow.conn.SetReadTimeout(1 * time.Second)
 		_, err = crow.conn.Write([]byte("^^version"))
 		if err != nil {
 			crow.conn.Close()
 			log.Error(err)
 			continue
 		}
-		crow.conn.SetReadTimeout(100 * time.Millisecond)
-		// read response
-		buf := make([]byte, 100)
-		n, err := crow.conn.Read(buf)
+		buf, err := Read(&crow.conn)
 		if err != nil {
 			crow.conn.Close()
 			log.Error(err)
 			continue
 		}
-		log.Tracef("read %d bytes: %s", n, buf[:n])
-		if bytes.Contains(buf[:n], []byte("v2")) || bytes.Contains(buf[:n], []byte("v3")) || bytes.Contains(buf[:n], []byte("v4")) {
+		if bytes.Contains(buf, []byte("v2")) || bytes.Contains(buf, []byte("v3")) || bytes.Contains(buf, []byte("v4")) {
+			log.Tracef("found crow version info")
 			crow.PortName = port
 			// setup default
 			_, err = crow.conn.Write([]byte("^^First"))
@@ -75,13 +74,12 @@ func New() (m Murder, err error) {
 				log.Error(err)
 				continue
 			}
-			n, err = crow.conn.Read(buf)
+			buf, err = Read(&crow.conn)
 			if err != nil {
 				crow.conn.Close()
 				log.Error(err)
 				continue
 			}
-			log.Tracef("read %d bytes: %s", n, buf[:n])
 			log.Debugf("crow connected on %s", crow.PortName)
 			m.Crow = append(m.Crow, crow)
 			crow = Crow{}
@@ -99,6 +97,22 @@ func New() (m Murder, err error) {
 	return
 }
 
+func Read(conn *serial.Port) (r []byte, err error) {
+	// read while there is something to read
+	buf := make([]byte, 100)
+	for {
+		n, err := (*conn).Read(buf)
+		if err != nil || n == 0 {
+			break
+		}
+		r = append(r, buf[:n]...)
+	}
+	if len(r) == 0 {
+		err = fmt.Errorf("unable to read")
+	}
+	log.Tracef("read %d bytes: %s", len(r), r)
+	return
+}
 func (m *Murder) Close() (err error) {
 	for _, crow := range m.Crow {
 		errClose := crow.conn.Close()

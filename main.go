@@ -11,7 +11,7 @@ import (
 
 func main() {
 	// open file for writing
-	log.SetLevel("debug")
+	log.SetLevel("trace")
 	f, err := os.Create("micro.log")
 	if err != nil {
 		panic(err)
