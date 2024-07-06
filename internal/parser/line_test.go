@@ -18,10 +18,12 @@ func TestArpeggio(t *testing.T) {
 		{"F(ru4d2u4)", "f4 a4 c5 f5 a5 f5 c5 f5 a5 c6"},
 		{"F(ru4d2u4,v4)", "f4(v4) a4(v4) c5(v4) f5(v4) a5(v4) f5(v4) c5(v4) f5(v4) a5(v4) c6(v4)"},
 		{"a b c", "a b c"},
+		{"C;2 (rv6)", "c2 e2 g2 c2 e2 g2"},
 	}
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("line(%s)", test.line), func(t *testing.T) {
-			tokens, _ := TokenizeLineString(test.line)
+			line := SanitizeLine(test.line)
+			tokens, _ := TokenizeLineString(line)
 			tokens, err := RetokenizeArpeggioArgument(tokens)
 			if err != nil {
 				log.Tracef("Error parsing expression: %v", err)
@@ -50,7 +52,8 @@ func TestTokens(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("line(%s)", test.line), func(t *testing.T) {
-			tokens, _ := TokenizeLineString(test.line)
+			line := SanitizeLine(test.line)
+			tokens, _ := TokenizeLineString(line)
 			assert.Equal(t, test.expected, tokens)
 		})
 	}
@@ -73,6 +76,7 @@ func TestLine(t *testing.T) {
 	for _, test := range tests {
 		t.Run(fmt.Sprintf("line(%s)", test.line), func(t *testing.T) {
 			line := test.line
+			line = SanitizeLine(line)
 			line = ExpandMultiplication(line)
 			tokens, err := TokenizeLineString(line)
 			log.Debugf("tokens: %v", tokens)

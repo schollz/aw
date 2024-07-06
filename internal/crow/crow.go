@@ -155,6 +155,27 @@ type ADSR struct {
 	Release float64
 }
 
+func (m *Murder) SetSlew(output int, slew float64) (err error) {
+	if !m.IsReady || len(m.Crow) < 1 {
+		err = fmt.Errorf("not ready")
+		return
+	}
+	crowIndex := int(math.Floor(float64(output-1) / 4))
+	if crowIndex >= len(m.Crow) {
+		err = fmt.Errorf("output '%d' exceeds number of crows (%d)", crowIndex, len(m.Crow))
+		return
+	}
+	output = ((output - 1) % 4) + 1
+
+	cmd := fmt.Sprintf("output[%d].slew=%3.3f", output, slew)
+	err = m.Command(crowIndex, cmd)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	return
+}
+
 func (m *Murder) SetADSR(output int, adsr ADSR) (err error) {
 	if !m.IsReady || len(m.Crow) < 1 {
 		err = fmt.Errorf("not ready")

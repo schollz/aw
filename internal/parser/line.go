@@ -9,6 +9,16 @@ import (
 	log "github.com/schollz/logger"
 )
 
+func SanitizeLine(line string) string {
+	for {
+		if !strings.Contains(line, " (") {
+			break
+		}
+		line = strings.Replace(line, " (", "(", -1)
+	}
+	return line
+}
+
 // RetokenizeArpeggioDecorator takes a line of notes and/or chords with decorators and expands it
 // for example Cm7 rud4 will expand to an arpeggio that goes up 1 and down 4 for a total of 5 steps
 func RetokenizeArpeggioArgument(tokens []string) (newTokens []string, err error) {
@@ -84,6 +94,17 @@ func RetokenizeArpeggioArgument(tokens []string) (newTokens []string, err error)
 					notei++
 				case 'd':
 					notei--
+				case 'v':
+					// stay in position going up
+					notei++
+					if notei == len(notes) {
+						notei = 0
+					}
+				case 'e':
+					notei--
+					if notei < 0 {
+						notei = len(notes) - 1
+					}
 				}
 			}
 		}
