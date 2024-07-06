@@ -217,6 +217,9 @@ func (tli *TLI) Update(text string) (err error) {
 	// copy over the rendered chains
 	mutex.Lock()
 	tliTest.Playing = tli.Playing
+	for i, v := range tli.TimePosition {
+		tliTest.TimePosition[i] = v
+	}
 	b, _ := json.Marshal(tliTest)
 	json.Unmarshal(b, &tli)
 	mutex.Unlock()
@@ -300,6 +303,7 @@ func (tli *TLI) ParseText(text string) (err error) {
 }
 
 func (p *Loop) AddLine(line string) (err error) {
+	line = SanitizeLine(line)
 	line = ExpandMultiplication(line)
 	tokens, err := TokenizeLineString(line)
 	if err != nil {
@@ -439,7 +443,10 @@ func (tli *TLI) Render() (err error) {
 						if val, err = fn.GetFloat("release"); err == nil {
 							adsr.Release = val
 						}
-						crows.SetADSR(output+1, adsr)
+						if val, err = fn.GetFloat("slew"); err == nil {
+							crows.SetSlew(output, val)
+						}
+						crows.SetADSR(output, adsr)
 					}
 
 				}
@@ -579,6 +586,7 @@ func (tli *TLI) run() {
 						}
 						if (timePosition > step.TimeStartMicroseconds && tli.TimePosition[i] <= step.TimeStartMicroseconds) ||
 							(timePosition < tli.TimePosition[i] && stepi == 0) {
+							log.Info(timePosition, step.TimeStartMicroseconds, tli.TimePosition[i])
 							PlayNote(step.Notes, true, chain.OutFns)
 							go func(s Step) {
 								sleepMS := int64(math.Round(float64(s.TimeDurationMicroseconds) * float64(s.Params.Gate) / 100.0))
