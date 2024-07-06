@@ -109,60 +109,15 @@ out crow(2)
 	time.Sleep(60 * time.Second)
 	tli.Stop()
 }
-func TestTLI(t *testing.T) {
+func TestTLIUpdate(t *testing.T) {
 	log.SetLevel("debug")
 	text := `
 
 loop test
-a(h50,t160,b8) b c d
+a(h50,t60,b8) b c d
 
 chain test
 out crow(output=1)
-
-// loop one
-// C;1(ru4d4u2,h50,t60)
-// Am;1(ru4d4u2)
-// Em;1(ru4d4u2)
-// G/B;1(ru4d4u2)
-
-// loop one2
-// F;1(ru4d4u2,h50)
-// F;1(ru4d4u2)
-// Am;1(ru4d4u2)
-// Dm;1(ru4d4u2)
-
-// loop two 
-// c4(h50,t60)
-// g4 a4 - -
-// c5 e5 c5 g5
-// -
-
-// loop three
-// e3(t60) - - d3
-// e3 - - d3
-// e3 - - d3
-// e3 - - d3
-
-
-// loop three2
-// f3(t60) a4 - -
-// a2 g2 - -
-// f3 - - -
-// e3 - - -
-
-
-// loop tuning 
-// c2
-
-// chain one * 2 one2 *2
-// out crow(output=1,env=1,attack=0.1,decay=0.1,sustain=5,release=0.1)
-
-// chain two
-// out crow(output=3)
-
-// chain three*2 three2*2
-// out crow(output=4)
-
 	`
 
 	tli := New()
@@ -170,6 +125,9 @@ out crow(output=1)
 	assert.Nil(t, err)
 	err = tli.Render()
 	assert.Nil(t, err)
+	log.Debugf("tli: %+v", tli.Chains)
+	log.Debugf("tli: %+v", tli.ChainsRendered)
+	time.Sleep(3 * time.Second)
 
 	tli.Play()
 	time.Sleep(3 * time.Second)

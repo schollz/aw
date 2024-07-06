@@ -18,11 +18,12 @@ var crows crow.Murder
 var mutex sync.Mutex
 
 type TLI struct {
-	Chains   []Chain `json:"chains"`
-	Loops    []Loop  `json:"loops"`
-	Params   Params  `json:"params"`
-	Playing  bool    `json:"playing"`
-	Updating bool    `json:"updating"`
+	Chains         []Chain `json:"chains"`
+	ChainsRendered []Chain `json:"rendered"`
+	Loops          []Loop  `json:"loops"`
+	Params         Params  `json:"params"`
+	Playing        bool    `json:"playing"`
+	Updating       bool    `json:"updating"`
 }
 
 type Params struct {
@@ -98,9 +99,9 @@ func (c Chain) String() string {
 	return sb.String()
 }
 
-func (c Chain) PlayNote(notes []Note, on bool) (err error) {
-	for _, out := range c.OutFns {
-		log.Debugf("[%+v] [%+v] note %v: %+v", c.NameLoop, out, on, notes)
+func PlayNote(notes []Note, on bool, outFns []Function) (err error) {
+	for _, out := range outFns {
+		log.Debugf("[%+v] note %v: %+v", out, on, notes)
 		switch out.Name {
 		case "crow":
 			// crow out
@@ -195,8 +196,6 @@ func New() *TLI {
 }
 
 func (tli *TLI) Update(text string) (err error) {
-	mutex.Lock()
-	defer mutex.Unlock()
 	tliTest := New()
 	err = tliTest.ParseText(text)
 	if err != nil {
@@ -209,10 +208,6 @@ func (tli *TLI) Update(text string) (err error) {
 		log.Error(err)
 		return
 	}
-	tli.Updating = true
-	tli.ParseText(text)
-	tli.Render()
-	tli.Updating = false
 	return
 }
 
@@ -439,6 +434,42 @@ func (tli *TLI) Render() (err error) {
 			}
 		}
 	}
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	mutex.Lock()
+	defer mutex.Unlock()
+	// copy over the chains
+	tli.ChainsRendered = make([]Chain, len(tli.Chains))
+	for i := range tli.Chains {
+		tli.ChainsRendered[i].NameLoop = tli.Chains[i].NameLoop
+		tli.ChainsRendered[i].Outs = tli.Chains[i].Outs
+		tli.ChainsRendered[i].OutFns = tli.Chains[i].OutFns
+		tli.ChainsRendered[i].Steps = make([]Step, len(tli.Chains[i].Steps))
+		for j := range tli.Chains[i].Steps {
+			tli.ChainsRendered[i].Steps[j].Params = tli.Chains[i].Steps[j].Params
+			tli.ChainsRendered[i].Steps[j].Token = tli.Chains[i].Steps[j].Token
+			tli.ChainsRendered[i].Steps[j].Arguments = tli.Chains[i].Steps[j].Arguments
+			tli.ChainsRendered[i].Steps[j].IsNote = tli.Chains[i].Steps[j].IsNote
+			tli.ChainsRendered[i].Steps[j].BeatsStart = tli.Chains[i].Steps[j].BeatsStart
+			tli.ChainsRendered[i].Steps[j].TimeStartMicroseconds = tli.Chains[i].Steps[j].TimeStartMicroseconds
+			tli.ChainsRendered[i].Steps[j].BeatsDuration = tli.Chains[i].Steps[j].BeatsDuration
+			tli.ChainsRendered[i].Steps[j].TimeDurationMicroseconds = tli.Chains[i].Steps[j].TimeDurationMicroseconds
+			tli.ChainsRendered[i].Steps[j].BeatsPerLine = tli.Chains[i].Steps[j].BeatsPerLine
+			tli.ChainsRendered[i].Steps[j].StepLineCount = tli.Chains[i].Steps[j].StepLineCount
+			tli.ChainsRendered[i].Steps[j].Notes = make([]Note, len(tli.Chains[i].Steps[j].Notes))
+			for k := range tli.Chains[i].Steps[j].Notes {
+				tli.ChainsRendered[i].Steps[j].Notes[k].Midi = tli.Chains[i].Steps[j].Notes[k].Midi
+				tli.ChainsRendered[i].Steps[j].Notes[k].Name = tli.Chains[i].Steps[j].Notes[k].Name
+				tli.ChainsRendered[i].Steps[j].Notes[k].NameOriginal = tli.Chains[i].Steps[j].Notes[k].NameOriginal
+				tli.ChainsRendered[i].Steps[j].Notes[k].IsRest = tli.Chains[i].Steps[j].Notes[k].IsRest
+				tli.ChainsRendered[i].Steps[j].Notes[k].IsLegato = tli.Chains[i].Steps[j].Notes[k].IsLegato
+			}
+		}
+		tli.ChainsRendered[i].BeatsTotal = tli.Chains[i].BeatsTotal
+		tli.ChainsRendered[i].MicrosecondsTotal = tli.Chains[i].MicrosecondsTotal
+	}
 
 	return
 }
@@ -522,7 +553,7 @@ func (tli *TLI) Stop() {
 }
 
 func (tli *TLI) Play() {
-	if len(tli.Chains) > 0 {
+	if len(tli.ChainsRendered) > 0 {
 		go tli.run()
 	}
 }
@@ -535,8 +566,8 @@ func (tli *TLI) run() {
 	tli.Playing = true
 	ticker := time.NewTicker(10 * time.Microsecond)
 	startTime := hrtime.Now()
-	for i := range tli.Chains {
-		tli.Chains[i].TimePosition = -1
+	for i := range tli.ChainsRendered {
+		tli.ChainsRendered[i].TimePosition = -1
 	}
 	go func() {
 		// catch panic
@@ -554,7 +585,7 @@ func (tli *TLI) run() {
 					return
 				}
 				mutex.Lock()
-				for i, chain := range tli.Chains {
+				for i, chain := range tli.ChainsRendered {
 					// skip if no steps
 					if len(chain.Steps) == 0 || tli.Updating {
 						continue
@@ -571,9 +602,9 @@ func (tli *TLI) run() {
 							mutex.Unlock()
 							return
 						}
-						if (timePosition > step.TimeStartMicroseconds && tli.Chains[i].TimePosition <= step.TimeStartMicroseconds) ||
-							(timePosition < tli.Chains[i].TimePosition && stepi == 0) {
-							tli.Chains[i].PlayNote(step.Notes, true)
+						if (timePosition > step.TimeStartMicroseconds && chain.TimePosition <= step.TimeStartMicroseconds) ||
+							(timePosition < chain.TimePosition && stepi == 0) {
+							PlayNote(step.Notes, true, chain.OutFns)
 							go func(s Step) {
 								sleepMS := int64(math.Round(float64(s.TimeDurationMicroseconds) * float64(s.Params.Gate) / 100.0))
 								sleepStart := hrtime.Now()
@@ -585,13 +616,13 @@ func (tli *TLI) run() {
 								}
 								mutex.Lock()
 								if i < len(tli.Chains) {
-									tli.Chains[i].PlayNote(s.Notes, false)
+									PlayNote(s.Notes, false, chain.OutFns)
 								}
 								mutex.Unlock()
 							}(step)
 						}
 					}
-					tli.Chains[i].TimePosition = timePosition
+					chain.TimePosition = timePosition
 				}
 				mutex.Unlock()
 			}
