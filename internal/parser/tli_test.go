@@ -110,6 +110,25 @@ import (
 //		time.Sleep(60 * time.Second)
 //		tli.Stop()
 //	}
+
+func TestTLIArg(t *testing.T) {
+	log.SetLevel("trace")
+	text := `
+loop a
+a(adsr=(1,2)) b c
+
+chain a
+out crow(1)
+`
+
+	tli, err := New(text)
+	assert.Nil(t, err)
+	log.Debugf("tli: %+v", tli.Chains)
+	log.Debugf("tli: %+v", tli.ChainsRendered)
+	tli.Play()
+	time.Sleep(3 * time.Second)
+}
+
 func TestTLIUpdate(t *testing.T) {
 	log.SetLevel("debug")
 	text := `

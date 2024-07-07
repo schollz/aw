@@ -540,6 +540,22 @@ func (tli *TLI) Play() {
 	}
 }
 
+func setCrowAdsr(chain Chain, step Step, arg Arg) {
+	for _, out := range chain.OutFns {
+		if out.Name == "crow" {
+			// set adsr
+			output, errInt := out.GetIntPlace("output", 0)
+			if errInt == nil && crows.IsReady {
+				vals := SplitArgFloatDiv(arg.Value, 100.0)
+				if len(vals) == 4 {
+					log.Tracef("setting adsr: %+v", arg.Value)
+					crows.SetADSR(output+1, crow.ADSR{Attack: vals[0], Decay: vals[1], Sustain: vals[2], Release: vals[3]})
+				}
+			}
+		}
+	}
+}
+
 // create a Run that takes an incoming bool channel to stop
 func (tli *TLI) run() {
 	if tli.Playing {
@@ -587,6 +603,12 @@ func (tli *TLI) run() {
 						if (timePosition > step.TimeStartMicroseconds && tli.TimePosition[i] <= step.TimeStartMicroseconds) ||
 							(timePosition < tli.TimePosition[i] && stepi == 0) {
 							log.Info(timePosition, step.TimeStartMicroseconds, tli.TimePosition[i])
+							for _, arg := range step.Arguments {
+								switch arg.Name {
+								case "adsr":
+									setCrowAdsr(chain, step, arg)
+								}
+							}
 							PlayNote(step.Notes, true, chain.OutFns)
 							go func(s Step) {
 								sleepMS := int64(math.Round(float64(s.TimeDurationMicroseconds) * float64(s.Params.Gate) / 100.0))
