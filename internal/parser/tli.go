@@ -431,22 +431,29 @@ func (tli *TLI) Render() (err error) {
 						crows.UseEnv[output-1], _ = fn.GetInt("env")
 
 						adsr = crow.ADSR{Attack: 0.1, Decay: 0.1, Sustain: 5, Release: 1}
+						haveAdsr := false
 						if val, err = fn.GetFloat("attack"); err == nil {
 							adsr.Attack = val
+							haveAdsr = true
 						}
 						if val, err = fn.GetFloat("decay"); err == nil {
 							adsr.Decay = val
+							haveAdsr = true
 						}
 						if val, err = fn.GetFloat("sustain"); err == nil {
 							adsr.Sustain = val
+							haveAdsr = true
 						}
 						if val, err = fn.GetFloat("release"); err == nil {
 							adsr.Release = val
+							haveAdsr = true
 						}
 						if val, err = fn.GetFloat("slew"); err == nil {
 							crows.SetSlew(output, val)
 						}
-						crows.SetADSR(output, adsr)
+						if haveAdsr {
+							crows.SetADSR(output+1, adsr)
+						}
 					}
 
 				}
