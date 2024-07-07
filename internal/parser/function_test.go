@@ -6,6 +6,24 @@ import (
 	log "github.com/schollz/logger"
 )
 
+func TestSplitArg(t *testing.T) {
+	tests := []struct {
+		text string
+		want []int
+	}{
+		{"(1,2)", []int{1, 2}},
+		{"(1 ,23 )", []int{1, 23}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.text, func(t *testing.T) {
+			got := SplitArg(tt.text)
+			if len(got) != len(tt.want) {
+				t.Errorf("SplitArg() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestParseFunction(t *testing.T) {
 	log.SetLevel("debug")
 	tests := []struct {

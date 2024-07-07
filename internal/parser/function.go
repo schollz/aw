@@ -59,6 +59,21 @@ func (f Function) GetIntPlace(name string, place int) (val int, err error) {
 	return
 }
 
+func SplitArg(arg string) []int {
+	// arg in form (1,2,3)
+	arg = strings.Trim(arg, "()")
+	parts := strings.Split(arg, ",")
+	var vals []int
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		val, err := strconv.Atoi(part)
+		if err == nil {
+			vals = append(vals, val)
+		}
+	}
+	return vals
+}
+
 type Function struct {
 	Name string
 	Args []Arg
