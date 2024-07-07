@@ -15,6 +15,7 @@ func TestParseFunction(t *testing.T) {
 		{"crow( 1)", Function{Name: "crow", Args: []Arg{{Value: "1"}}}},
 		{"F( ru4d2u4, v4)", Function{Name: "F", Args: []Arg{{Value: "ru4d2u4"}, {Value: "v4"}}}},
 		{"run(v=4, d=2)", Function{Name: "run", Args: []Arg{{Name: "v", Value: "4"}, {Name: "d", Value: "2"}}}},
+		{"run(adsr=(1 ,2), d=2)", Function{Name: "run", Args: []Arg{{Name: "adsr", Value: "(1,2)"}, {Name: "d", Value: "2"}}}},
 	}
 	for _, tt := range tests {
 		t.Run(tt.text, func(t *testing.T) {

@@ -6,16 +6,6 @@ import (
 	"strings"
 )
 
-type Function struct {
-	Name string
-	Args []Arg
-}
-
-type Arg struct {
-	Name  string
-	Value string
-}
-
 func (f Function) GetFloatPlace(name string, place int) (val float64, err error) {
 	for _, arg := range f.Args {
 		if arg.Name == name {
@@ -69,6 +59,16 @@ func (f Function) GetIntPlace(name string, place int) (val int, err error) {
 	return
 }
 
+type Function struct {
+	Name string
+	Args []Arg
+}
+
+type Arg struct {
+	Name  string
+	Value string
+}
+
 func ParseFunction(text string) (f Function, err error) {
 	// remove all spaces
 	text = strings.ReplaceAll(text, " ", "")
@@ -87,18 +87,58 @@ func ParseFunction(text string) (f Function, err error) {
 		return f, nil // No arguments
 	}
 
-	argsParts := strings.Split(argsStr, ",")
-	for _, part := range argsParts {
-		arg := Arg{}
-		if strings.Contains(part, "=") {
-			parts := strings.SplitN(part, "=", 2)
-			arg.Name = parts[0]
-			arg.Value = parts[1]
-		} else {
-			arg.Value = part
-		}
-		f.Args = append(f.Args, arg)
+	f.Args, err = parseArgs(argsStr)
+	if err != nil {
+		return f, err
 	}
 
 	return f, nil
+}
+
+func parseArgs(argsStr string) ([]Arg, error) {
+	var args []Arg
+	var currentArg string
+	openParenCount := 0
+
+	for i := 0; i < len(argsStr); i++ {
+		char := argsStr[i]
+		if char == '(' {
+			openParenCount++
+		} else if char == ')' {
+			openParenCount--
+		}
+
+		if char == ',' && openParenCount == 0 {
+			arg, err := parseArg(currentArg)
+			if err != nil {
+				return nil, err
+			}
+			args = append(args, arg)
+			currentArg = ""
+		} else {
+			currentArg += string(char)
+		}
+	}
+
+	if currentArg != "" {
+		arg, err := parseArg(currentArg)
+		if err != nil {
+			return nil, err
+		}
+		args = append(args, arg)
+	}
+
+	return args, nil
+}
+
+func parseArg(argStr string) (Arg, error) {
+	arg := Arg{}
+	if strings.Contains(argStr, "=") {
+		parts := strings.SplitN(argStr, "=", 2)
+		arg.Name = parts[0]
+		arg.Value = parts[1]
+	} else {
+		arg.Value = argStr
+	}
+	return arg, nil
 }
