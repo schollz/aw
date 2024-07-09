@@ -59,13 +59,19 @@ func (f Function) GetIntPlace(name string, place int) (val int, err error) {
 	return
 }
 
-func SplitArgFloatDiv(arg string, div float64) []float64 {
-	vals := SplitArg(arg)
-	v := make([]float64, len(vals))
-	for i, val := range vals {
-		v[i] = float64(val) / div
+func SplitArgFloat(arg string) []float64 {
+	// arg in form (0.1,2.1,0.3)
+	arg = strings.Trim(arg, "()")
+	parts := strings.Split(arg, ",")
+	var vals []float64
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		val, err := strconv.ParseFloat(part, 64)
+		if err == nil {
+			vals = append(vals, val)
+		}
 	}
-	return v
+	return vals
 }
 
 func SplitArg(arg string) []int {
