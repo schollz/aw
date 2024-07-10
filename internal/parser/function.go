@@ -32,6 +32,20 @@ func (f Function) GetFloat(name string) (val float64, err error) {
 	err = fmt.Errorf("could not find argument %s", name)
 	return
 }
+func (f Function) GetStringPlace(name string, place int) (val string, err error) {
+	for _, arg := range f.Args {
+		if arg.Name == name {
+			val = arg.Value
+			return
+		}
+	}
+	if place < len(f.Args) {
+		val = f.Args[place].Value
+		return
+	}
+	err = fmt.Errorf("could not find argument %s or place %d", name, place)
+	return
+}
 
 func (f Function) GetInt(name string) (val int, err error) {
 	for _, arg := range f.Args {
