@@ -571,7 +571,9 @@ func setCrowAdsr(chain Chain, step Step, arg Arg) {
 					log.Tracef("setting adsr: %+v", arg.Value)
 					log.Tracef("step: %+v", step)
 					for i, v := range vals {
-						vals[i] = v * float64(step.TimeDurationMicroseconds) / 1000000.0
+						if i != 2 {
+							vals[i] = v * float64(step.TimeDurationMicroseconds) / 1000000.0
+						}
 					}
 					crows.SetADSR(output+1, crow.ADSR{Attack: vals[0], Decay: vals[1], Sustain: vals[2], Release: vals[3]})
 				}
