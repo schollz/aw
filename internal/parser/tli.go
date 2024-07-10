@@ -67,7 +67,7 @@ func (t TLI) String() string {
 		sb.WriteString(c.String())
 	}
 	for _, p := range t.Loops {
-		sb.WriteString(fmt.Sprintf("\nloop '%s':", p.Name))
+		sb.WriteString(fmt.Sprintf("\ntie '%s':", p.Name))
 		for _, s := range p.Steps {
 			sb.WriteString("\n")
 			sb.WriteString(s.String())
@@ -251,12 +251,12 @@ func (tli *TLI) ParseText(text string) (err error) {
 		if len(line) == 0 {
 			continue
 		}
-		if strings.HasPrefix(line, "loop") {
+		if strings.HasPrefix(line, "run") {
 			fnFinish()
 			state = StateLoop
 			loop.Name = strings.Split(line, " ")[1]
 			continue
-		} else if strings.HasPrefix(line, "chain") {
+		} else if strings.HasPrefix(line, "tie") {
 			fnFinish()
 			state = StateChain
 			chain.NameLoop, err = ParseChain(line)
@@ -282,6 +282,12 @@ func (tli *TLI) ParseText(text string) (err error) {
 				}
 			case StateSet:
 				// parse set
+				if strings.HasPrefix(line, "bpm") {
+					val, errParse := strconv.Atoi(strings.Fields(line)[1])
+					if errParse == nil {
+						tli.Params.Set(TempoSet, val)
+					}
+				}
 			}
 		}
 	}

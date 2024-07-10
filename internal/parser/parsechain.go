@@ -9,10 +9,10 @@ import (
 func ParseChain(expr string) ([]string, error) {
 	var stack []string
 	var currentToken strings.Builder
-	if !strings.Contains(expr, "chain") {
-		return nil, fmt.Errorf("chain not found")
+	if !strings.Contains(expr, "tie") {
+		return nil, fmt.Errorf("tie not found")
 	}
-	expr = strings.Replace(expr, "chain", "", -1)
+	expr = strings.Replace(expr, "tie", "", -1)
 	expr = strings.TrimSpace(expr)
 
 	pushCurrentToken := func() {

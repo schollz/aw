@@ -114,10 +114,13 @@ import (
 func TestTLIArg(t *testing.T) {
 	log.SetLevel("trace")
 	text := `
-loop a
+set 
+bpm 240
+
+run a
 a(adsr=(1,2)) b c
 
-chain a
+tie a
 out crow(1)
 `
 
@@ -127,16 +130,17 @@ out crow(1)
 	log.Debugf("tli: %+v", tli.ChainsRendered)
 	tli.Play()
 	time.Sleep(3 * time.Second)
+
 }
 
 func TestTLIUpdate(t *testing.T) {
 	log.SetLevel("debug")
 	text := `
 
-loop test
+run test
 a(h50,t60,b8) b c d
 
-chain test
+tie test
 out crow(output=1)
 	`
 
@@ -148,10 +152,10 @@ out crow(output=1)
 	tli.Play()
 	time.Sleep(3 * time.Second)
 	err = tli.Update(`
-loop test
+run test
 f(t180) e d c
 
-chain test
+tie test
 out crow(output=1)`)
 	assert.Nil(t, err)
 	time.Sleep(3 * time.Second)
