@@ -247,6 +247,10 @@ func (tli *TLI) ParseText(text string) (err error) {
 	for _, line := range lines {
 		// skip comments
 		line = strings.Split(line, "//")[0]
+		if strings.HasPrefix(line, "#") {
+			// skip comments
+			continue
+		}
 		line = strings.TrimSpace(line)
 		if len(line) == 0 {
 			continue
