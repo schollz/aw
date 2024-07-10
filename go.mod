@@ -10,7 +10,7 @@ require (
 	github.com/mattn/go-isatty v0.0.11
 	github.com/mattn/go-runewidth v0.0.7
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/schollz/gomidi v0.0.0-20240710211818-eb9c5ba7c03a
+	github.com/schollz/gomidi v0.0.0-20240710222842-6c65ac0433b7
 	github.com/schollz/logger v1.2.0
 	github.com/sergi/go-diff v1.1.0
 	github.com/stretchr/testify v1.7.0
@@ -36,6 +36,7 @@ require (
 	github.com/rivo/uniseg v0.1.0 // indirect
 	github.com/xo/terminfo v0.0.0-20200218205459-454e5b68f9e8 // indirect
 	github.com/zyedidia/poller v1.0.1 // indirect
+	gitlab.com/gomidi/midi/v2 v2.1.7 // indirect
 	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )

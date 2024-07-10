@@ -37,8 +37,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/rivo/uniseg v0.1.0 h1:+2KBaVoUmb9XzDsrx/Ct0W/EYOSFf/nWTauy++DprtY=
 github.com/rivo/uniseg v0.1.0/go.mod h1:J6wj4VEh+S6ZtnVlnTBMWIodfgj8LQOQFoIToxlJtxc=
-github.com/schollz/gomidi v0.0.0-20240710211818-eb9c5ba7c03a h1:/BKigsVc2ZNmsT/npeiKfbH7uD3hElXNKCJGAHmfBPk=
-github.com/schollz/gomidi v0.0.0-20240710211818-eb9c5ba7c03a/go.mod h1:qKlTXzigmKZ8RQ/0GY4dwrA/VZm+1X+32CBPMI4jWnM=
+github.com/schollz/gomidi v0.0.0-20240710222842-6c65ac0433b7 h1:lnhgRu84w5XY5s0iSyCRgxWRra7dU9I3F8ThnCACgNg=
+github.com/schollz/gomidi v0.0.0-20240710222842-6c65ac0433b7/go.mod h1:/DaG4Vq9VvMJ32SojdfJiY2iwO6hBNZlJugYzsuB9+w=
 github.com/schollz/logger v1.2.0 h1:5WXfINRs3lEUTCZ7YXhj0uN+qukjizvITLm3Ca2m0Ho=
 github.com/schollz/logger v1.2.0/go.mod h1:P6F4/dGMGcx8wh+kG1zrNEd4vnNpEBY/mwEMd/vn6AM=
 github.com/sergi/go-diff v1.1.0 h1:we8PVUC3FE2uYfodKH/nBHMSetSfHDR6scGdBi+erh0=
@@ -68,6 +68,8 @@ github.com/zyedidia/tcell/v2 v2.0.10 h1:6fbbYAx/DYc9A//4jU1OeBrxtc9qJxYCZXCtGQbt
 github.com/zyedidia/tcell/v2 v2.0.10/go.mod h1:i4NNlquIQXFeNecrOgxDQQJdu+7LmTi3g62asvmwUws=
 github.com/zyedidia/terminal v0.0.0-20230315200948-4b3bcf6dddef h1:LeB4Qs0Tss4r/Qh8pfsTTqagDYHysfKJLYzAH3MVfu0=
 github.com/zyedidia/terminal v0.0.0-20230315200948-4b3bcf6dddef/go.mod h1:zeb8MJdcCObFKVvur3n2B4BANIPuo2Q8r4iiNs9Enx0=
+gitlab.com/gomidi/midi/v2 v2.1.7 h1:lIjVXH+bnGG04j/kUVOFILt0BQvBeGz8Kyz0l6aM830=
+gitlab.com/gomidi/midi/v2 v2.1.7/go.mod h1:Cj6K9VH5GhYvPgL2JddxHBmZiP3nxKxB5XyTxiXvL9U=
 go.bug.st/serial v1.6.2 h1:kn9LRX3sdm+WxWKufMlIRndwGfPWsH1/9lCWXQCasq8=
 go.bug.st/serial v1.6.2/go.mod h1:UABfsluHAiaNI+La2iESysd9Vetq7VRdpxvjx7CmmOE=
 golang.org/x/sys v0.0.0-20190204203706-41f3e6584952/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
