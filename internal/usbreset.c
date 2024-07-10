@@ -1,4 +1,3 @@
-/* usbreset -- send a USB port reset to a USB device */
 
 #include <errno.h>
 #include <fcntl.h>
@@ -11,12 +10,13 @@
 
 #define BUFFER_SIZE 256
 
-int find_stm_device(char *device_filename) {
+int find_stm_devices(char device_filenames[][BUFFER_SIZE], int max_devices) {
   FILE *fp;
   char path[BUFFER_SIZE];
   char bus[4], device[4];
   char *command = "lsusb | grep 'STMicroelectronics'";
   char *prefix = "/dev/bus/usb/";
+  int count = 0;
 
   fp = popen(command, "r");
   if (fp == NULL) {
@@ -24,42 +24,47 @@ int find_stm_device(char *device_filename) {
     return 1;
   }
 
-  if (fgets(path, sizeof(path) - 1, fp) != NULL) {
+  while (fgets(path, sizeof(path) - 1, fp) != NULL && count < max_devices) {
     sscanf(path, "Bus %3s Device %3s", bus, device);
-    snprintf(device_filename, BUFFER_SIZE, "%s%s/%s", prefix, bus, device);
-  } else {
-    fprintf(stderr, "No STMicroelectronics device found\n");
-    pclose(fp);
-    return 1;
+    snprintf(device_filenames[count], BUFFER_SIZE, "%s%s/%s", prefix, bus,
+             device);
+    count++;
   }
 
   pclose(fp);
-  return 0;
+  return count;
 }
 
 int main() {
-  char device_filename[BUFFER_SIZE];
+  char device_filenames[10][BUFFER_SIZE];  // Adjust the array size as needed
+  int num_devices;
   int fd;
   int rc;
 
-  if (find_stm_device(device_filename)) {
+  num_devices = find_stm_devices(device_filenames, 10);
+  if (num_devices == 0) {
+    fprintf(stderr, "No STMicroelectronics device found\n");
     return 1;
   }
 
-  fd = open(device_filename, O_WRONLY);
-  if (fd < 0) {
-    perror("Error opening output file");
-    return 1;
+  for (int i = 0; i < num_devices; i++) {
+    fd = open(device_filenames[i], O_WRONLY);
+    if (fd < 0) {
+      perror("Error opening output file");
+      continue;
+    }
+
+    printf("Resetting USB device %s\n", device_filenames[i]);
+    rc = ioctl(fd, USBDEVFS_RESET, 0);
+    if (rc < 0) {
+      perror("Error in ioctl");
+      close(fd);
+      continue;
+    }
+    printf("Reset successful\n");
+
+    close(fd);
   }
 
-  printf("Resetting USB device %s\n", device_filename);
-  rc = ioctl(fd, USBDEVFS_RESET, 0);
-  if (rc < 0) {
-    perror("Error in ioctl");
-    return 1;
-  }
-  printf("Reset successful\n");
-
-  close(fd);
   return 0;
 }
