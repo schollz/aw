@@ -10,6 +10,7 @@ require (
 	github.com/mattn/go-isatty v0.0.11
 	github.com/mattn/go-runewidth v0.0.7
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/schollz/gomidi v0.0.0-20240710211818-eb9c5ba7c03a
 	github.com/schollz/logger v1.2.0
 	github.com/sergi/go-diff v1.1.0
 	github.com/stretchr/testify v1.7.0
@@ -25,10 +26,24 @@ require (
 	layeh.com/gopher-luar v1.0.7
 )
 
+require (
+	github.com/creack/goselect v0.1.2 // indirect
+	github.com/creack/pty v1.1.18 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/gdamore/encoding v1.0.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.0.3 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rivo/uniseg v0.1.0 // indirect
+	github.com/xo/terminfo v0.0.0-20200218205459-454e5b68f9e8 // indirect
+	github.com/zyedidia/poller v1.0.1 // indirect
+	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
+)
+
 replace github.com/kballard/go-shellquote => github.com/zyedidia/go-shellquote v0.0.0-20200613203517-eccd813c0655
 
 replace github.com/mattn/go-runewidth => github.com/zyedidia/go-runewidth v0.0.12
 
 replace layeh.com/gopher-luar => github.com/layeh/gopher-luar v1.0.7
 
-go 1.16
+go 1.22.5

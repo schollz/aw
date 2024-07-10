@@ -32,6 +32,20 @@ func (f Function) GetFloat(name string) (val float64, err error) {
 	err = fmt.Errorf("could not find argument %s", name)
 	return
 }
+func (f Function) GetStringPlace(name string, place int) (val string, err error) {
+	for _, arg := range f.Args {
+		if arg.Name == name {
+			val = arg.Value
+			return
+		}
+	}
+	if place < len(f.Args) {
+		val = f.Args[place].Value
+		return
+	}
+	err = fmt.Errorf("could not find argument %s or place %d", name, place)
+	return
+}
 
 func (f Function) GetInt(name string) (val int, err error) {
 	for _, arg := range f.Args {
@@ -101,7 +115,6 @@ type Arg struct {
 
 func ParseFunction(text string) (f Function, err error) {
 	// remove all spaces
-	text = strings.ReplaceAll(text, " ", "")
 	openParenIndex := strings.Index(text, "(")
 	closeParenIndex := strings.LastIndex(text, ")")
 
@@ -165,10 +178,10 @@ func parseArg(argStr string) (Arg, error) {
 	arg := Arg{}
 	if strings.Contains(argStr, "=") {
 		parts := strings.SplitN(argStr, "=", 2)
-		arg.Name = parts[0]
-		arg.Value = parts[1]
+		arg.Name = strings.TrimSpace(parts[0])
+		arg.Value = strings.TrimSpace(parts[1])
 	} else {
-		arg.Value = argStr
+		arg.Value = strings.TrimSpace(argStr)
 	}
 	return arg, nil
 }

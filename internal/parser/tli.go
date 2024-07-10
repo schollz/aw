@@ -11,11 +11,17 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/loov/hrtime"
 	"github.com/schollz/aw/internal/crow"
+	"github.com/schollz/gomidi"
 	log "github.com/schollz/logger"
 )
 
 var crows crow.Murder
 var mutex sync.Mutex
+var midiDevices map[string]gomidi.Device
+
+func init() {
+	midiDevices = make(map[string]gomidi.Device)
+}
 
 type TLI struct {
 	TimePosition   []int64 `json:"time_position,omitempty"`
@@ -102,6 +108,22 @@ func PlayNote(notes []Note, on bool, outFns []Function) (err error) {
 	for _, out := range outFns {
 		log.Debugf("[%+v] note %v: %+v", out, on, notes)
 		switch out.Name {
+		case "midi":
+			var output string
+			output, err = out.GetStringPlace("name", 0)
+			if err != nil {
+				log.Error(err)
+				return
+			}
+			channel, _ := out.GetIntPlace("ch", 1)
+			log.Tracef("midi out: %s %d", output, channel)
+			for _, note := range notes {
+				if on {
+					midiDevices[output].NoteOn(uint8(channel), uint8(note.Midi), 120)
+				} else {
+					midiDevices[output].NoteOff(uint8(channel), uint8(note.Midi))
+				}
+			}
 		case "crow":
 			// crow out
 			var output int
@@ -282,7 +304,7 @@ func (tli *TLI) ParseText(text string) (err error) {
 			case StateChain:
 				// parse chain
 				if strings.HasPrefix(line, "out") {
-					chain.Outs = strings.Fields(line)[1:]
+					chain.Outs = append(chain.Outs, strings.TrimSpace(strings.TrimPrefix(line, "out")))
 				}
 			case StateSet:
 				// parse set
@@ -424,6 +446,19 @@ func (tli *TLI) Render() (err error) {
 	for _, chain := range tli.Chains {
 		for _, fn := range chain.OutFns {
 			switch fn.Name {
+			case "midi":
+				name, errFind := fn.GetStringPlace("output", 0)
+				if errFind == nil {
+					if _, ok := midiDevices[name]; !ok {
+						var err error
+						midiDevices[name], err = gomidi.New(name)
+						if err != nil {
+							log.Error(err)
+						} else {
+							midiDevices[name].Open()
+						}
+					}
+				}
 			case "crow":
 				if !crows.IsReady {
 					crows, err = crow.New()
@@ -531,6 +566,7 @@ func (c *Chain) Render() {
 		}
 		c.OutFns = append(c.OutFns, fn)
 	}
+	log.Tracef("OutFns: %+v", c.OutFns)
 
 	c.Steps = newSteps
 	c.BeatsTotal = beatsTotal
