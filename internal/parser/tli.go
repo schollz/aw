@@ -469,32 +469,11 @@ func (tli *TLI) Render() (err error) {
 				if crows.IsReady {
 					var val float64
 					var err error
-					var adsr crow.ADSR
 					var output int
 					output, _ = fn.GetIntPlace("output", 0)
 					if output > 0 {
 						crows.UseEnv[output], _ = fn.GetInt("env")
 
-						adsr = crow.ADSR{Attack: 0.1, Decay: 0.1, Sustain: 5, Release: 0.1}
-						if val, err = fn.GetFloat("attack"); err == nil {
-							adsr.Attack = val
-						}
-						if val, err = fn.GetFloat("decay"); err == nil {
-							adsr.Decay = val
-						}
-						if val, err = fn.GetFloat("sustain"); err == nil {
-							adsr.Sustain = val
-						}
-						if val, err = fn.GetFloat("release"); err == nil {
-							adsr.Release = val
-						}
-						if crows.UseEnv[output] > 0 {
-							log.Debugf("crow %d using adsr", output)
-							err = crows.SetADSR(crows.UseEnv[output], adsr)
-							if err != nil {
-								log.Error(err)
-							}
-						}
 						if val, err = fn.GetFloat("slew"); err == nil {
 							crows.SetSlew(output, val)
 						}
@@ -669,9 +648,13 @@ func (tli *TLI) run() {
 						if (timePosition > step.TimeStartMicroseconds && tli.TimePosition[i] <= step.TimeStartMicroseconds) ||
 							(timePosition < tli.TimePosition[i] && stepi == 0) {
 							log.Info(timePosition, step.TimeStartMicroseconds, tli.TimePosition[i])
+							if len(step.Arguments) > 0 {
+								log.Infof("arguments: %+v", step.Arguments)
+							}
 							for _, arg := range step.Arguments {
-								switch arg.Name {
-								case "adsr":
+								if strings.HasPrefix(arg.Value, "adsr") {
+									arg.Value = strings.TrimPrefix(arg.Value, "adsr=")
+									arg.Value = strings.TrimPrefix(arg.Value, "adsr")
 									setCrowAdsr(chain, step, arg)
 								}
 							}

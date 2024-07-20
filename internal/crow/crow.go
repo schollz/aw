@@ -68,7 +68,7 @@ func New() (m Murder, err error) {
 			log.Tracef("found crow version info")
 			crow.PortName = port
 			// setup default
-			_, err = crow.conn.Write([]byte("^^First"))
+			_, err = crow.conn.Write([]byte("^^clearscript"))
 			if err != nil {
 				crow.conn.Close()
 				log.Error(err)
@@ -189,6 +189,7 @@ func (m *Murder) SetADSR(output int, adsr ADSR) (err error) {
 	output = ((output - 1) % 4) + 1
 
 	cmd := fmt.Sprintf("output[%d].action=adsr(%3.3f,%3.3f,%3.3f,%3.3f)", output, adsr.Attack, adsr.Decay, adsr.Sustain, adsr.Release)
+	log.Debugf("%s", cmd)
 	err = m.Command(crowIndex, cmd)
 	if err != nil {
 		log.Error(err)
