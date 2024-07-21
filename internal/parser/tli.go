@@ -672,11 +672,17 @@ func (tli *TLI) run() {
 								if i < len(tli.Chains) {
 									PlayNote(s.Notes, false, c.OutFns)
 								}
+								if crows.NeedsFlush {
+									crows.Flush()
+								}
 								mutex.Unlock()
 							}(step, chain)
 						}
 					}
 					tli.TimePosition[i] = timePosition
+				}
+				if crows.NeedsFlush {
+					crows.Flush()
 				}
 				mutex.Unlock()
 			}

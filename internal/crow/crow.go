@@ -18,12 +18,14 @@ type Crow struct {
 	conn     serial.Port
 	on       bool
 	PortName string
+	batch    string
 }
 
 type Murder struct {
-	IsReady bool
-	Crow    []Crow
-	UseEnv  [16]int
+	IsReady    bool
+	Crow       []Crow
+	UseEnv     [16]int
+	NeedsFlush bool
 }
 
 func New() (m Murder, err error) {
@@ -198,27 +200,45 @@ func (m *Murder) SetADSR(output int, adsr ADSR) (err error) {
 	return
 }
 
-func (m Murder) Command(crowIndex int, cmd string) (err error) {
+func (m *Murder) Flush() (err error) {
+	for crowIndex := range m.Crow {
+		if m.Crow[crowIndex].batch == "" {
+			continue
+		}
+		cmd := m.Crow[crowIndex].batch + "\n"
+		m.Crow[crowIndex].batch = ""
+		log.Tracef("crow %d flush: '%s'", crowIndex, strings.TrimSpace(cmd))
+		_, err = m.Crow[crowIndex].conn.Write([]byte(cmd))
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		m.Crow[crowIndex].conn.SetReadTimeout(10 * time.Millisecond)
+		buf := make([]byte, 512)
+		n, err := m.Crow[crowIndex].conn.Read(buf)
+		if err != nil {
+			log.Error(err)
+		} else if n > 0 {
+			log.Tracef("read %d bytes: %s", n, buf[:n])
+		}
+	}
+	m.NeedsFlush = false
+	return
+}
+
+func (m *Murder) Command(crowIndex int, cmd string) (err error) {
 	if crowIndex >= len(m.Crow) {
 		err = fmt.Errorf("crowIndex out of range: %d", crowIndex)
 		return
 	}
 
-	log.Trace("[crow command] " + cmd)
-	cmd = strings.TrimSpace(cmd) + "\n"
-	_, err = m.Crow[crowIndex].conn.Write([]byte(cmd))
-	if err != nil {
-		log.Error(err)
-		return
+	log.Tracef("[crow%d command] %s", crowIndex, cmd)
+	cmd = strings.TrimSpace(cmd)
+	if len(m.Crow[crowIndex].batch) > 0 {
+		m.Crow[crowIndex].batch += ";"
 	}
-	m.Crow[crowIndex].conn.SetReadTimeout(10 * time.Millisecond)
-	buf := make([]byte, 100)
-	n, err := m.Crow[crowIndex].conn.Read(buf)
-	if err != nil {
-		log.Error(err)
-	} else if n > 0 {
-		log.Tracef("read %d bytes: %s", n, buf[:n])
-	}
+	m.Crow[crowIndex].batch += cmd
+	m.NeedsFlush = true
 	return
 }
 
