@@ -1,0 +1,116 @@
+set
+bpm 60
+
+run bass2
+c0(t120,adsr(0.001,0.1,5,0.1),h50) g b c a e c c e c e c f1 c d c
+ 
+run bass
+a0
+f 
+c0
+e0
+
+run 1
+Am;3(ru4d4u4d5,h50,t60,adsr(1,1,1,1))
+F/A;3(ru4d4u4d5)
+C/G;3(ru4d4u4d5)
+Em/G;3(ru4d4u4d5)
+
+run 2
+Am;4(rv32,h50,t60,adsr(1,1,1,1))
+F/A;4(rv32)
+C/G;4(rv32)
+Em/G;4(rv32)
+
+run 3
+a4(h50,t60,adsr(0.5,1,1,0.1))
+e4
+_
+c4 d
+e4
+_
+g4 f
+e4
+_
+
+run 4
+b5(h50,t60,adsr(0.5,1,1,0.1)) a5
+_
+[c4 d4] e3
+_
+_
+c5 d5
+e5
+_
+f5
+d4
+g4 f 
+a5
+_
+_
+
+run 1a
+c3(t60,h50,adsr(1,0.1,1,1))
+~
+c3(t60,h50,adsr(1,0.1,1,1))
+~
+b3(t60,h50,adsr(1,0.1,1,1))
+~
+b3(t60,h50,adsr(1,0.1,1,1))
+~
+
+
+run 2a
+a2(t60,h50,adsr(1,0.1,1,1))
+~
+g3(t60,h50,adsr(1,0.1,1,1))
+~
+g3(t60,h50,adsr(1,0.1,1,1))
+~
+g3(t60,h50,adsr(1,0.1,1,1))
+~
+
+run 3a
+e2(t60,h50,adsr(1,0.1,1,1))
+~
+e2(t60,h50,adsr(1,0.1,1,1))
+~
+e2(t60,h50,adsr(1,0.1,1,1))
+~
+d2(t60,h50,adsr(1,0.1,1,1))
+~
+
+run clock
+#c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0
+c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0 c8 c0
+
+# tie clock
+# out crow(4)
+# 
+# tie bass2
+# out crow(3)
+
+run tune
+c4
+
+# tie tune
+# out crow(1)
+# out crow(2)
+# out crow(3)
+# out crow(4)
+# out crow(5)
+# out crow(6)
+# out crow(7)
+# out crow(8)
+
+tie 3
+out crow(1,env=2)
+
+tie 1
+out crow(3,env=4)
+
+tie 4
+out crow(5,env=6)
+
+tie bass
+out crow(7)

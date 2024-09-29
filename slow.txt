@@ -1,0 +1,40 @@
+set 
+bpm 30
+
+run a
+C;2(ru4d4u4d4,h50,adsr(1,1,1,1))
+
+run b
+e5(h60,adsr(0.3,0.01,1,0.2))
+
+run c
+g3(h60,adsr(0.6,0.01,1,0.2))
+
+run d
+g1(h100,adsr(1,1,10,1))
+
+
+run tune
+c4
+
+# tie tune
+# out crow(1)
+# out crow(2)
+# out crow(3)
+# out crow(4)
+# out crow(5)
+# out crow(6)
+# out crow(7)
+# out crow(8)
+
+tie a
+out crow(1,env=2)
+
+tie b
+out crow(3,env=4)
+
+tie c
+out crow(5,env=6)
+
+tie d
+out crow(7,env=8)

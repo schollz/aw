@@ -1,0 +1,7 @@
+run a
+c2(t160) [d f]
+a
+g
+
+tie a
+out midi(usb)
